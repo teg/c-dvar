@@ -4,6 +4,10 @@ CHANGES WITH 1:
 
         * Initial release of c-dvar.
 
-        Contributions from: David Herrmann
+        * This project provides an implementation of the D-Bus type system as
+          a variant type. It is implemented in ISO-C11 and has no external
+          dependencies.
 
-        - Berlin, 2017-XX-XX
+        Contributions from: David Herrmann, Tom Gundersen
+
+        - Berlin, 2017-08-13
