@@ -13,16 +13,16 @@
 #include "c-dvar-private.h"
 #include "c-dvar-type.h"
 
-static void test_basic_serialization(void) {
+static void test_basic_serialization(bool big_endian) {
         _cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
         _cleanup_(c_dvar_freep) CDVar *var = NULL;
         const char *str1, *str2;
         size_t n_data;
         void *data;
-        uint64_t u64;
-        uint32_t u32;
-        uint16_t u16;
-        uint8_t u8;
+        uint64_t u64 = 0;
+        uint32_t u32 = 0;
+        uint16_t u16 = 0;
+        uint8_t u8 = 0;
         int r;
 
         /*
@@ -41,7 +41,7 @@ static void test_basic_serialization(void) {
 
         /* write example data */
 
-        c_dvar_begin_write(var, type, 1);
+        c_dvar_begin_write(var, big_endian, type, 1);
 
         c_dvar_write(var,
                      "(yu[{s<q>}{s<t>}])",
@@ -139,7 +139,7 @@ static void test_dbus_message(void) {
         r = c_dvar_new(&var);
         assert(!r);
 
-        c_dvar_begin_write(var, type, 1);
+        c_dvar_begin_write(var, (__BYTE_ORDER == __BIG_ENDIAN), type, 1);
 
         c_dvar_write(var, "(yyyyuu[", 0, 0, 0, 0, 0, 0);
         c_dvar_write(var, "(y<u>)", 0, c_dvar_type_u, 0);
@@ -172,7 +172,7 @@ static void test_dbus_body(void) {
         r = c_dvar_new(&var);
         assert(!r);
 
-        c_dvar_begin_write(var, types, 3);
+        c_dvar_begin_write(var, (__BYTE_ORDER == __BIG_ENDIAN), types, 3);
         c_dvar_write(var, "sss", "fo", "ob", "ar");
         r = c_dvar_end_write(var, &data, &n_data);
         assert(!r);
@@ -191,7 +191,8 @@ static void test_dbus_body(void) {
 }
 
 int main(int argc, char **argv) {
-        test_basic_serialization();
+        test_basic_serialization(true);
+        test_basic_serialization(false);
         test_dbus_message();
         test_dbus_body();
         return 0;
